@@ -1,0 +1,516 @@
+{
+	"info": {
+		"_postman_id": "9335fff9-4b00-4dcd-98c1-8aad1a9c5828",
+		"name": "Refinitiv Tick History Jobs and Files Management",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+		"_exporter_id": "2058731"
+	},
+	"item": [
+		{
+			"name": "User Authentication",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"var jsonData = JSON.parse(responseBody);\r",
+							"postman.setEnvironmentVariable(\"authorization\", jsonData.value);\r",
+							""
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"method": "POST",
+				"header": [
+					{
+						"key": "Prefer",
+						"value": "respond-async",
+						"type": "text"
+					},
+					{
+						"key": "Content-Type",
+						"value": "application/json",
+						"type": "text"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\r\n  \"Credentials\": {\r\n    \"Username\": \"{{dss-user}}\",\r\n    \"Password\": \"{{dss-password}}\"\r\n  }\r\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "{{protocol}}{{host}}{{api}}Authentication/RequestToken",
+					"host": [
+						"{{protocol}}{{host}}{{api}}Authentication"
+					],
+					"path": [
+						"RequestToken"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Get All Jobs",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"var jsonData = JSON.parse(responseBody);\r",
+							"postman.setEnvironmentVariable(\"nextLinkUrl\", jsonData[\"@odata.nextlink\"]);\r",
+							""
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"method": "GET",
+				"header": [
+					{
+						"key": "Prefer",
+						"value": "respond-async;odata.maxpagesize=5",
+						"type": "text"
+					},
+					{
+						"key": "Authorization",
+						"value": "Token {{authorization}}",
+						"type": "text"
+					}
+				],
+				"url": {
+					"raw": "{{protocol}}{{host}}{{api}}/Jobs/Jobs",
+					"host": [
+						"{{protocol}}{{host}}{{api}}"
+					],
+					"path": [
+						"Jobs",
+						"Jobs"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Get Jobs from a NextLink",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"var status = pm.response.code;\r",
+							"if (status == 200)\r",
+							"{\r",
+							"    var jsonData = JSON.parse(responseBody);\r",
+							"    postman.setEnvironmentVariable(\"nextLinkUrl\", jsonData[\"@odata.nextlink\"]);\r",
+							"}\r",
+							""
+						],
+						"type": "text/javascript"
+					}
+				},
+				{
+					"listen": "prerequest",
+					"script": {
+						"exec": [
+							"if (pm.variables.get(\"nextLinkUrl\") == null) {\r",
+							"    console.error(\"Next link URL is null.\");\r",
+							"    throw new Error(\"Next link URL is null.\");\r",
+							"}"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"method": "GET",
+				"header": [
+					{
+						"key": "Prefer",
+						"value": "respond-async;odata.maxpagesize=5",
+						"type": "text"
+					},
+					{
+						"key": "Authorization",
+						"value": "Token {{authorization}}",
+						"type": "text"
+					}
+				],
+				"url": {
+					"raw": "{{nextLinkUrl}}",
+					"host": [
+						"{{nextLinkUrl}}"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Get a Single Job by a JobId",
+			"request": {
+				"method": "GET",
+				"header": [
+					{
+						"key": "Prefer",
+						"value": "respond-async",
+						"type": "text"
+					},
+					{
+						"key": "Authorization",
+						"value": "Token {{authorization}}",
+						"type": "text"
+					}
+				],
+				"url": {
+					"raw": "{{protocol}}{{host}}{{api}}/Jobs/Jobs('{{jobId}}')",
+					"host": [
+						"{{protocol}}{{host}}{{api}}"
+					],
+					"path": [
+						"Jobs",
+						"Jobs('{{jobId}}')"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Get In-Progress Jobs",
+			"request": {
+				"method": "GET",
+				"header": [
+					{
+						"key": "Prefer",
+						"value": "respond-async",
+						"type": "text"
+					},
+					{
+						"key": "Authorization",
+						"value": "Token {{authorization}}",
+						"type": "text"
+					}
+				],
+				"url": {
+					"raw": "{{protocol}}{{host}}{{api}}/Jobs/JobGetActive",
+					"host": [
+						"{{protocol}}{{host}}{{api}}"
+					],
+					"path": [
+						"Jobs",
+						"JobGetActive"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Get Completed Jobs",
+			"request": {
+				"method": "GET",
+				"header": [
+					{
+						"key": "Prefer",
+						"value": "respond-async",
+						"type": "text"
+					},
+					{
+						"key": "Authorization",
+						"value": "Token {{authorization}}",
+						"type": "text"
+					}
+				],
+				"url": {
+					"raw": "{{protocol}}{{host}}{{api}}/Jobs/JobGetCompleted",
+					"host": [
+						"{{protocol}}{{host}}{{api}}"
+					],
+					"path": [
+						"Jobs",
+						"JobGetCompleted"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Cancel a Job",
+			"request": {
+				"method": "DELETE",
+				"header": [
+					{
+						"key": "Prefer",
+						"value": "respond-async",
+						"type": "text"
+					},
+					{
+						"key": "Authorization",
+						"value": "Token {{authorization}}",
+						"type": "text"
+					}
+				],
+				"url": {
+					"raw": "{{protocol}}{{host}}{{api}}/Extractions/ExtractRawResult(ExtractionId='{{jobId}}')",
+					"host": [
+						"{{protocol}}{{host}}{{api}}"
+					],
+					"path": [
+						"Extractions",
+						"ExtractRawResult(ExtractionId='{{jobId}}')"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Monitor a Job and Get a Report Extraction Id",
+			"request": {
+				"method": "GET",
+				"header": [
+					{
+						"key": "Prefer",
+						"value": "respond-async",
+						"type": "text"
+					},
+					{
+						"key": "Authorization",
+						"value": "Token {{authorization}}",
+						"type": "text"
+					}
+				],
+				"url": {
+					"raw": "{{protocol}}{{host}}{{api}}/Extractions/ExtractRawResult(ExtractionId='{{jobId}}')",
+					"host": [
+						"{{protocol}}{{host}}{{api}}"
+					],
+					"path": [
+						"Extractions",
+						"ExtractRawResult(ExtractionId='{{jobId}}')"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Get a List of Files by a Report Extraction Id",
+			"request": {
+				"method": "GET",
+				"header": [
+					{
+						"key": "Prefer",
+						"value": "respond-async",
+						"type": "text"
+					},
+					{
+						"key": "Authorization",
+						"value": "Token {{authorization}}",
+						"type": "text"
+					}
+				],
+				"url": {
+					"raw": "{{protocol}}{{host}}{{api}}/Extractions/ReportExtractions('{{reportExtractionId}}')/Files ",
+					"host": [
+						"{{protocol}}{{host}}{{api}}"
+					],
+					"path": [
+						"Extractions",
+						"ReportExtractions('{{reportExtractionId}}')",
+						"Files "
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Download a Result by a Job Id",
+			"request": {
+				"method": "GET",
+				"header": [
+					{
+						"key": "Prefer",
+						"value": "respond-async",
+						"type": "text"
+					},
+					{
+						"key": "Authorization",
+						"value": "Token {{authorization}}",
+						"type": "text"
+					}
+				],
+				"url": {
+					"raw": "{{protocol}}{{host}}{{api}}/Extractions/RawExtractionResults('{{jobId}}')/$value",
+					"host": [
+						"{{protocol}}{{host}}{{api}}"
+					],
+					"path": [
+						"Extractions",
+						"RawExtractionResults('{{jobId}}')",
+						"$value"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Get All Extracted Files",
+			"request": {
+				"method": "GET",
+				"header": [
+					{
+						"key": "Prefer",
+						"value": "respond-async",
+						"type": "text"
+					},
+					{
+						"key": "Authorization",
+						"value": "Token {{authorization}}",
+						"type": "text"
+					}
+				],
+				"url": {
+					"raw": "{{protocol}}{{host}}{{api}}/Extractions/ExtractedFiles",
+					"host": [
+						"{{protocol}}{{host}}{{api}}"
+					],
+					"path": [
+						"Extractions",
+						"ExtractedFiles"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Get a Single File by an Extracted File Id",
+			"request": {
+				"method": "GET",
+				"header": [
+					{
+						"key": "Prefer",
+						"value": "respond-async",
+						"type": "text"
+					},
+					{
+						"key": "Authorization",
+						"value": "Token {{authorization}}",
+						"type": "text"
+					}
+				],
+				"url": {
+					"raw": "{{protocol}}{{host}}{{api}}/Extractions/ExtractedFiles('{{extractedFileId}}')",
+					"host": [
+						"{{protocol}}{{host}}{{api}}"
+					],
+					"path": [
+						"Extractions",
+						"ExtractedFiles('{{extractedFileId}}')"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Download a File by an Extracted File Id",
+			"request": {
+				"method": "GET",
+				"header": [
+					{
+						"key": "Prefer",
+						"value": "respond-async",
+						"type": "text"
+					},
+					{
+						"key": "Authorization",
+						"value": "Token {{authorization}}",
+						"type": "text"
+					}
+				],
+				"url": {
+					"raw": "{{protocol}}{{host}}{{api}}/Extractions/ExtractedFiles('{{extractedFileId}}')/$value ",
+					"host": [
+						"{{protocol}}{{host}}{{api}}"
+					],
+					"path": [
+						"Extractions",
+						"ExtractedFiles('{{extractedFileId}}')",
+						"$value "
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Delele a File by an Extracted File Id Copy",
+			"request": {
+				"method": "DELETE",
+				"header": [
+					{
+						"key": "Prefer",
+						"value": "respond-async",
+						"type": "text"
+					},
+					{
+						"key": "Authorization",
+						"value": "Token {{authorization}}",
+						"type": "text"
+					}
+				],
+				"url": {
+					"raw": "{{protocol}}{{host}}{{api}}/Extractions/ExtractedFiles('{{extractedFileId}}')",
+					"host": [
+						"{{protocol}}{{host}}{{api}}"
+					],
+					"path": [
+						"Extractions",
+						"ExtractedFiles('{{extractedFileId}}')"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Delele Multiple Files by Extracted File Ids",
+			"request": {
+				"method": "POST",
+				"header": [
+					{
+						"key": "Prefer",
+						"value": "respond-async",
+						"type": "text"
+					},
+					{
+						"key": "Authorization",
+						"value": "Token {{authorization}}",
+						"type": "text"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\r\n    \"ExtractedFileIds\":[\r\n        \"{{extractedFileId}}\",\r\n        \"{{extractedFileId1}}\"        \r\n    ]\r\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "{{protocol}}{{host}}{{api}}/Extractions/ExtractedFileDeleteMultiple",
+					"host": [
+						"{{protocol}}{{host}}{{api}}"
+					],
+					"path": [
+						"Extractions",
+						"ExtractedFileDeleteMultiple"
+					]
+				}
+			},
+			"response": []
+		}
+	]
+}
